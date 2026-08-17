@@ -7,3 +7,5 @@ final_roberta_sentiment_model/
 *.safetensors
 *.pt
 *.pth
+*.exe
+*.old
