@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Marquee — Movie Review Sentiment Analysis</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v=35">
+</head>
+
+<body class="home-body">
+
+    <div class="container spa-container">
+
+        <!-- ====================================================== -->
+        <!-- TOP BRAND BAR -->
+        <!-- ====================================================== -->
+        <nav class="brand-bar">
+            <div class="brand-logo">
+                <span class="brand-name">MARQUEE</span>
+            </div>
+        </nav>
+
+        <!-- ====================================================== -->
+        <!-- COMPACT HERO BANNER -->
+        <!-- ====================================================== -->
+        <header class="spa-hero">
+            <div class="hero-text">
+                <div class="eyebrow-badge">
+                    <span class="eyebrow-dot"></span>
+                    <span class="eyebrow">AI For Cinema Lovers</span>
+                </div>
+                <h1 class="hero-title">Every movie has a <span>feeling.</span><br>Tell us yours.</h1>
+                <p class="hero-lede">
+                    Write a review for any film and let our hybrid intelligence predict whether your verdict reads as <strong class="text-pos">Positive</strong>, <strong class="text-neu">Neutral</strong>, or <strong class="text-neg">Negative</strong>.
+                </p>
+                <div class="genre-tags">
+                    <span class="genre-pill">Drama</span>
+                    <span class="genre-pill">Sci-Fi</span>
+                    <span class="genre-pill">Action</span>
+                    <span class="genre-pill">Arthouse</span>
+                    <span class="genre-pill">Musical</span>
+                </div>
+            </div>
+
+            <!-- COMPACT FILM POSTER FAN (Preserving artwork) -->
+            <div class="hero-poster-fan">
+                <div class="fan-card fan-card-1">
+                    <img src="{{ url_for('static', filename='images/still-ensemble.jpg') }}" alt="Cinematic still ensemble">
+                </div>
+                <div class="fan-card fan-card-2">
+                    <img src="{{ url_for('static', filename='images/poster-grid.jpg') }}" alt="Poster collage">
+                </div>
+                <div class="fan-card fan-card-3">
+                    <img src="{{ url_for('static', filename='images/still-mood.jpg') }}" alt="Cinematic mood still">
+                </div>
+            </div>
+        </header>
+
+
+        <!-- ====================================================== -->
+        <!-- 3-COLUMN WORKSPACE GRID -->
+        <!-- ====================================================== -->
+        <section class="spa-workspace-grid">
+
+            <!-- COLUMN 1: REVIEW INPUT TOOL (Primary) -->
+            <div class="spa-col col-input">
+                <div class="panel-card frame-corners">
+                    <div class="panel-header">
+                        <div class="panel-title-wrap">
+                            <h2>Write your movie review</h2>
+                        </div>
+                        <span class="panel-sub">Predictions compute in milliseconds</span>
+                    </div>
+
+                    <form id="spaReviewForm" onsubmit="handleAnalyzeSubmit(event)">
+                        
+                        <div class="input-row-duo">
+                            <div class="field-group">
+                                <label for="movie_name">Movie Name</label>
+                                <input 
+                                    type="text" 
+                                    id="movie_name" 
+                                    name="movie_name" 
+                                    placeholder="e.g. Chronicles of Starlight"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="field-group">
+                                <label for="reviewer_name">Your Name <span class="label-opt">(Optional)</span></label>
+                                <input 
+                                    type="text" 
+                                    id="reviewer_name" 
+                                    name="reviewer_name" 
+                                    placeholder="e.g. Aman"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="field-group textarea-group">
+                            <label for="review_text">What did you think about the movie? <span class="label-req">*</span></label>
+                            <div class="spa-textarea-wrapper">
+                                <textarea
+                                    id="review_text"
+                                    name="review_text"
+                                    placeholder="Write or paste your movie review here..."
+                                    maxlength="5000"
+                                    required
+                                ></textarea>
+                                <div class="textarea-status-bar">
+                                    <span id="charCount">0 / 5000 characters</span>
+                                    <span id="wordCount">0 words</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-action-buttons">
+                            <button type="submit" class="btn btn-maroon btn-analyze" id="analyzeSubmitBtn">
+                                <span class="btn-spinner" id="btnSpinner" aria-hidden="true"></span>
+                                <span id="btnText">Analyze Sentiment</span>
+                            </button>
+
+                            <button type="button" class="btn btn-outline" id="clearFormBtn" onclick="handleClearForm()">
+                                Clear
+                            </button>
+                        </div>
+
+                        <div id="formErrorMessage" class="form-error-banner" style="display: none;">
+                            <span id="formErrorText">Could not reach the analysis server.</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- COLUMN 2: QUICK EXAMPLES -->
+            <div class="spa-col col-examples">
+                <div class="panel-card frame-corners">
+                    <div class="panel-header">
+                        <div class="panel-title-wrap">
+                            <h2>Quick Examples</h2>
+                        </div>
+                        <span class="panel-sub">Click any to test instantly</span>
+                    </div>
+
+                    <div class="examples-list">
+                        
+                        <!-- Positive Preset -->
+                        <div class="example-item" onclick="loadExamplePreset('Chronicles of Starlight', 'Aman', 'An absolute triumph of cinema! The lead performances were deeply moving, the score was breathtaking, and every frame felt crafted with pure passion.')">
+                            <div class="example-top">
+                                <span class="example-badge badge-pos">Positive</span>
+                                <span class="example-movie">Chronicles of Starlight</span>
+                            </div>
+                            <p class="example-snippet">
+                                "An absolute triumph of cinema! The lead performances were deeply moving..."
+                            </p>
+                        </div>
+
+                        <!-- Neutral Preset -->
+                        <div class="example-item" onclick="loadExamplePreset('The Silent Harbor', 'Priya', 'A decent watch with solid cinematography. Some plotlines worked well, but the pacing dragged in the second act and the climax was fairly predictable.')">
+                            <div class="example-top">
+                                <span class="example-badge badge-neu">Neutral</span>
+                                <span class="example-movie">The Silent Harbor</span>
+                            </div>
+                            <p class="example-snippet">
+                                "A decent watch with solid cinematography. Some plotlines worked well..."
+                            </p>
+                        </div>
+
+                        <!-- Negative Preset -->
+                        <div class="example-item" onclick="loadExamplePreset('Shadows of Midnight', 'Rohan', 'Extremely disappointing and tedious. The dialogue was clumsy, the characters felt completely hollow, and the story went nowhere.')">
+                            <div class="example-top">
+                                <span class="example-badge badge-neg">Negative</span>
+                                <span class="example-movie">Shadows of Midnight</span>
+                            </div>
+                            <p class="example-snippet">
+                                "Extremely disappointing and tedious. The dialogue was clumsy..."
+                            </p>
+                        </div>
+
+                        <!-- Mixed / Groq LLM Preset -->
+                        <div class="example-item example-item-hybrid" onclick="loadExamplePreset('Echoes of the Clockwork Kingdom', 'Kavita', 'Visually stunning with a majestic soundtrack and brilliant production design, yet the sluggish narrative rhythm and weak character development left the final act emotionally hollow.')">
+                            <div class="example-top">
+                                <span class="example-badge badge-llm">Mixed (Groq LLM)</span>
+                                <span class="example-movie">Clockwork Kingdom</span>
+                            </div>
+                            <p class="example-snippet">
+                                "Visually stunning with a majestic soundtrack, yet the sluggish narrative..."
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================== -->
+        <!-- INLINE RESULT DRAWER (Appears smoothly on analysis) -->
+        <!-- ====================================================== -->
+        <section id="inlineResultSection" class="inline-result-section" style="display: none;">
+            
+            <div class="result-focal-card frame-corners" id="resultCardFrame">
+                
+                <!-- TOP RESULT BAR -->
+                <div class="result-focal-header">
+                    <div class="result-meta-tags">
+                        <span class="res-tag-movie" id="resMovieTag">Film: <strong>-</strong></span>
+                        <span class="res-tag-reviewer" id="resReviewerTag">Critic: <strong>-</strong></span>
+                    </div>
+
+                    <div class="result-engine-badge" id="resEngineBadge">
+                        <!-- Dynamic pill inserted by JS -->
+                    </div>
+                </div>
+
+                <!-- VERDICT DISPLAY -->
+                <div class="verdict-banner-wrap" id="verdictBannerWrap">
+                    <div class="verdict-caption">PREDICTED SENTIMENT VERDICT</div>
+                    <div class="verdict-large-title" id="verdictLargeTitle">
+                        <span class="verdict-symbol-large" id="verdictSymbolLarge">▲</span>
+                        <span id="verdictLabelText">POSITIVE</span>
+                    </div>
+                    <div class="verdict-confidence-tag" id="verdictConfidenceTag">
+                        Confidence Strength: <strong>Very confident (94.8%)</strong>
+                    </div>
+                </div>
+
+                <!-- PROBABILITY BARS -->
+                <div class="probabilities-compact-block">
+                    <span class="block-heading">Class Probabilities Breakdown</span>
+                    <div class="prob-bars-grid" id="probBarsContainer">
+                        <!-- Dynamic Probability Bars -->
+                    </div>
+                </div>
+
+                <!-- GROQ LLM REASONING & ASPECT GRID (Only when LLM was used) -->
+                <div id="llmDeepReasoningWrap" class="llm-deep-reasoning-wrap" style="display: none;">
+                    
+                    <div class="llm-section-header">
+                        <div>
+                            <h4>Groq Llama 3.3 70B Nuance Analysis</h4>
+                            <p>Complex emotional subtext and aspect-level rationale</p>
+                        </div>
+                    </div>
+
+                    <div class="llm-rationale-box" id="llmRationaleBox">
+                        <span class="rationale-heading">Critical Rationale:</span>
+                        <p class="rationale-text" id="llmRationaleText"></p>
+                    </div>
+
+                    <div class="aspects-block" id="aspectsContainer">
+                        <span class="aspects-heading">Aspect-Level Sentiment Extraction</span>
+                        <div class="aspects-grid" id="aspectsGrid">
+                            <!-- Dynamic Aspect Cards -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RESULT ACTIONS -->
+                <div class="result-actions-toolbar">
+                    <form action="{{ url_for('download_report') }}" method="POST" class="download-form-inline">
+                        <input type="hidden" name="review_text" id="downloadReviewText">
+                        <input type="hidden" name="movie_name" id="downloadMovieName">
+                        <input type="hidden" name="reviewer_name" id="downloadReviewerName">
+                        <input type="hidden" name="label" id="downloadLabel">
+                        <input type="hidden" name="engine_used" id="downloadEngineUsed">
+                        <input type="hidden" name="roberta_confidence" id="downloadConfidence">
+                        <input type="hidden" name="latency_ms" id="downloadLatency">
+
+                        <button type="submit" class="btn btn-outline btn-sm">
+                            <span>Download Official Report (.txt)</span>
+                        </button>
+                    </form>
+
+                    <button type="button" class="btn btn-gold btn-sm" onclick="scrollToReviewForm()">
+                        <span>Analyze Another Review</span>
+                        <span>↑</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================================== -->
+        <!-- LOBBY BAND: HOW IT WORKS -->
+        <!-- ====================================================== -->
+        <section class="lobby-band">
+            <div class="lobby-band-content">
+                <span class="eyebrow">How It Works</span>
+                <h2>Reads every review like a script, line by line.</h2>
+                <p>
+                    Your text is parsed through a fine-tuned <strong>RoBERTa-base</strong> model. Reviews with borderline margins or complex conflicting sentiments are escalated to <strong>Groq Llama 3.3 70B</strong> for aspect-level reasoning.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- SITE FOOTER -->
+    <div class="film-divider" aria-hidden="true"></div>
+    <footer class="site-footer">
+        <p>MARQUEE &nbsp;•&nbsp; Fine-Tuned RoBERTa-base &amp; Groq Llama 3.3 70B Single-Page Sentiment Intelligence</p>
+    </footer>
+
+    <!-- INLINE OVERLAY SPINNER (Subtle & fast during AJAX) -->
+    <div id="projector-overlay" class="projector-overlay" aria-hidden="true">
+        <div class="projector-modal frame-corners">
+            <div class="film-reel-icon">🎬</div>
+            <div class="projector-title">Projector Rolling...</div>
+            <div class="gold-rule centered"></div>
+            <p class="projector-desc">
+                Analyzing script nuances and calibrated confidence across the pipeline.
+            </p>
+            <div class="projector-status-pills">
+                <span class="proj-pill">⚡ RoBERTa Fast Pass</span>
+                <span class="proj-arrow">→</span>
+                <span class="proj-pill">🧠 Groq Deep Reasoning</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ====================================================== -->
+    <!-- CLIENT JAVASCRIPT LOGIC (SPA FLOW & STATS) -->
+    <!-- ====================================================== -->
+    <script>
+        const reviewTextEl = document.getElementById("review_text");
+        const movieNameEl = document.getElementById("movie_name");
+        const reviewerNameEl = document.getElementById("reviewer_name");
+        const charCountEl = document.getElementById("charCount");
+        const wordCountEl = document.getElementById("wordCount");
+        const analyzeSubmitBtn = document.getElementById("analyzeSubmitBtn");
+        const btnSpinner = document.getElementById("btnSpinner");
+        const btnText = document.getElementById("btnText");
+        const projectorOverlay = document.getElementById("projector-overlay");
+        const formErrorBanner = document.getElementById("formErrorMessage");
+        const formErrorText = document.getElementById("formErrorText");
+        const inlineResultSection = document.getElementById("inlineResultSection");
+
+        // Live text counters
+        function updateCounters() {
+            const length = reviewTextEl.value.length;
+            const words = reviewTextEl.value.trim().length > 0 ? reviewTextEl.value.trim().split(/\s+/).length : 0;
+            charCountEl.textContent = `${length} / 5000 characters`;
+            wordCountEl.textContent = `${words} words`;
+        }
+        reviewTextEl.addEventListener("input", updateCounters);
+
+        // Clear Form
+        function handleClearForm() {
+            reviewTextEl.value = "";
+            movieNameEl.value = "";
+            reviewerNameEl.value = "";
+            updateCounters();
+            formErrorBanner.style.display = "none";
+            reviewTextEl.focus();
+        }
+
+        // Preset loader with generic/fictional titles
+        function loadExamplePreset(movie, reviewer, text) {
+            movieNameEl.value = movie;
+            reviewerNameEl.value = reviewer;
+            reviewTextEl.value = text;
+            updateCounters();
+            formErrorBanner.style.display = "none";
+            reviewTextEl.focus();
+        }
+
+        // Scroll helper
+        function scrollToReviewForm() {
+            const inputCard = document.querySelector(".col-input");
+            if (inputCard) {
+                inputCard.scrollIntoView({ behavior: "smooth", block: "start" });
+                reviewTextEl.focus();
+            }
+        }
+
+        // Main AJAX Analysis Handler
+        async function handleAnalyzeSubmit(e) {
+            e.preventDefault();
+            const text = reviewTextEl.value.trim();
+            const movie = movieNameEl.value.trim();
+            const reviewer = reviewerNameEl.value.trim();
+
+            if (!text) {
+                formErrorText.textContent = "Please enter a movie review before analyzing.";
+                formErrorBanner.style.display = "flex";
+                return;
+            }
+
+            formErrorBanner.style.display = "none";
+            setLoadingState(true);
+
+            try {
+                const response = await fetch("{{ url_for('predict') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        review_text: text,
+                        movie_name: movie,
+                        reviewer_name: reviewer,
+                        hybrid_enabled: true,
+                        confidence_threshold: 0.80,
+                        margin_threshold: 0.15
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || "Server returned an error during prediction.");
+                }
+
+                // Render result inline
+                renderInlineResult(data);
+
+            } catch (err) {
+                formErrorText.textContent = err.message || "Could not connect to sentiment engine. Please try again.";
+                formErrorBanner.style.display = "flex";
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function setLoadingState(isLoading) {
+            if (isLoading) {
+                analyzeSubmitBtn.disabled = true;
+                btnSpinner.style.display = "inline-block";
+                btnText.textContent = "Analyzing...";
+                projectorOverlay.classList.add("active");
+            } else {
+                analyzeSubmitBtn.disabled = false;
+                btnSpinner.style.display = "none";
+                btnText.textContent = "Analyze Sentiment";
+                projectorOverlay.classList.remove("active");
+            }
+        }
+
+        function renderInlineResult(data) {
+            const label = data.label;
+            const colors = data.colors;
+            const isLlm = (data.engine_used === "llm");
+
+            // Populate Metadata
+            document.getElementById("resMovieTag").innerHTML = `Film: <strong>${escapeHtml(data.movie_name)}</strong>`;
+            document.getElementById("resReviewerTag").innerHTML = `Critic: <strong>${escapeHtml(data.reviewer_name)}</strong>`;
+            
+            // Engine Pill
+            const badgeEl = document.getElementById("resEngineBadge");
+            if (isLlm) {
+                badgeEl.innerHTML = `<span class="pill-badge pill-llm">Deep Nuance Analysis — Groq Llama 3.3 70B (${data.latency_ms} ms)</span>`;
+            } else {
+                badgeEl.innerHTML = `<span class="pill-badge pill-roberta">Express Lane — RoBERTa Fast Pass (${data.latency_ms} ms)</span>`;
+            }
+
+            // Verdict Card Background & Label
+            const bannerWrap = document.getElementById("verdictBannerWrap");
+            bannerWrap.style.background = colors.bg_soft;
+            bannerWrap.style.borderColor = colors.border;
+            bannerWrap.style.color = colors.text;
+
+            const largeTitle = document.getElementById("verdictLargeTitle");
+            largeTitle.style.color = colors.text;
+
+            document.getElementById("verdictSymbolLarge").textContent = colors.icon || "◆";
+            document.getElementById("verdictLabelText").textContent = label.toUpperCase();
+            document.getElementById("verdictConfidenceTag").innerHTML = `Confidence Strength: <strong>${data.confidence_strength} (${data.roberta_confidence_pct}%)</strong>`;
+
+            // Probability Distribution Bars
+            const probContainer = document.getElementById("probBarsContainer");
+            probContainer.innerHTML = data.probabilities.map(p => `
+                <div class="prob-row">
+                    <div class="prob-label-row">
+                        <span class="prob-class ${p.sentiment.toLowerCase()}">${p.sentiment}</span>
+                        <span class="prob-percent">${p.percentage}%</span>
+                    </div>
+                    <div class="prob-track">
+                        <div class="prob-fill ${p.sentiment.toLowerCase()}" style="width: ${p.percentage}%;"></div>
+                    </div>
+                </div>
+            `).join("");
+
+            // Groq LLM Reasoning & Aspects
+            const llmWrap = document.getElementById("llmDeepReasoningWrap");
+            if (isLlm && (data.llm_rationale || data.aspects)) {
+                llmWrap.style.display = "block";
+                
+                if (data.llm_rationale) {
+                    document.getElementById("llmRationaleText").textContent = data.llm_rationale;
+                }
+
+                const aspectsGrid = document.getElementById("aspectsGrid");
+                if (data.aspects && Array.isArray(data.aspects)) {
+                    aspectsGrid.innerHTML = data.aspects.map(a => `
+                        <div class="aspect-card">
+                            <div class="aspect-header">
+                                <span class="aspect-icon">◆</span>
+                                <span class="aspect-name">${escapeHtml(a.aspect)}</span>
+                                <span class="aspect-sentiment-tag ${a.sentiment ? a.sentiment.toLowerCase() : ''}">${escapeHtml(a.sentiment || 'Neutral')}</span>
+                            </div>
+                            <p class="aspect-desc">${escapeHtml(a.description || a.rationale || '')}</p>
+                        </div>
+                    `).join("");
+                }
+            } else {
+                llmWrap.style.display = "none";
+            }
+
+            // Populate Hidden Download Form Inputs
+            document.getElementById("downloadReviewText").value = data.review_text;
+            document.getElementById("downloadMovieName").value = data.movie_name;
+            document.getElementById("downloadReviewerName").value = data.reviewer_name;
+            document.getElementById("downloadLabel").value = data.label;
+            document.getElementById("downloadEngineUsed").value = data.engine_used;
+            document.getElementById("downloadConfidence").value = `${data.roberta_confidence_pct}%`;
+            document.getElementById("downloadLatency").value = data.latency_ms;
+
+            // Reveal and scroll smoothly
+            inlineResultSection.style.display = "block";
+            inlineResultSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        function getAspectIcon(aspectName) {
+            return "◆";
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
+        }
+
+        updateCounters();
+    </script>
+
+</body>
+</html>

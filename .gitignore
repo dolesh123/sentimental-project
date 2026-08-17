@@ -1,0 +1,9 @@
+.env
+.env.*
+__pycache__/
+*.pyc
+.venv/
+final_roberta_sentiment_model/
+*.safetensors
+*.pt
+*.pth

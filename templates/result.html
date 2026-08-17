@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analysis Result — Marquee</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='styles.css') }}?v=10"
+    >
+</head>
+
+<body class="result-body">
+
+<div class="page-wrapper">
+
+    <!-- ====================================================== -->
+    <!-- HEADER -->
+    <!-- ====================================================== -->
+
+    <header class="result-header">
+
+        <a href="{{ url_for('index') }}" class="back-link">
+            ← Analyze Another Review
+        </a>
+
+        <h1 class="result-title">
+            The Verdict Is In
+        </h1>
+
+        <p class="result-subtitle">
+            Calibrated sentiment classification &amp; hybrid intelligence breakdown
+        </p>
+
+    </header>
+
+
+    <!-- ====================================================== -->
+    <!-- MAIN -->
+    <!-- ====================================================== -->
+
+    <main class="result-container">
+
+        <!-- ================================================== -->
+        <!-- ABOVE-THE-FOLD: PRIMARY VERDICT CARD (FOCAL POINT) -->
+        <!-- ================================================== -->
+
+        <section
+            class="verdict-card frame-corners"
+            style="
+                background: {{ colors.bg_soft }};
+                border-color: {{ colors.border }};
+            "
+        >
+
+            <div
+                class="verdict-label"
+                style="color: {{ colors.text }};"
+            >
+                PREDICTED SENTIMENT
+            </div>
+
+            <div
+                class="verdict-value"
+                style="color: {{ colors.text }};"
+            >
+                <span class="verdict-icon">
+                    {% if label|lower == 'positive' %}▲
+                    {% elif label|lower == 'neutral' %}◆
+                    {% else %}▼{% endif %}
+                </span>
+                {{ label | upper }}
+            </div>
+
+            <!-- ROUTING PILL INTEGRATED INSIDE VERDICT FOCAL AREA -->
+            <div class="verdict-engine-pill">
+                {% if engine_used == 'llm' %}
+                    <span class="pill-badge pill-llm">
+                        <span class="pill-icon">🧠</span>
+                        <strong>Deep Nuance Analysis</strong> — Groq Llama 3.3 70B (RoBERTa detected mixed signals)
+                    </span>
+                {% else %}
+                    <span class="pill-badge pill-roberta">
+                        <span class="pill-icon">⚡</span>
+                        <strong>Express Lane</strong> — Direct RoBERTa Classification ({{ (roberta_confidence * 100)|round(1) }}% Confidence)
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if llm_unavailable_notice %}
+                <div class="llm-notice-pill">
+                    ⚠️ {{ llm_unavailable_notice }}
+                </div>
+            {% endif %}
+
+            <div class="verdict-bar-wrap">
+                <div
+                    class="verdict-bar"
+                    style="background: {{ colors.text }};"
+                ></div>
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- 2-STEP HYBRID PIPELINE VISUALIZATION -->
+        <!-- ================================================== -->
+
+        <section class="pipeline-visualization-card">
+
+            <div class="pipeline-header">
+                <span class="pipeline-tag">Hybrid Architecture Flow</span>
+                <h3>Dual-Engine Routing Journey</h3>
+            </div>
+
+            <div class="pipeline-track">
+
+                <!-- STEP 1: ROBERTA -->
+                <div class="pipeline-step {% if engine_used == 'roberta' %}step-resolved{% else %}step-escalated{% endif %}">
+                    <div class="step-badge">1</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            <span class="step-icon">⚡</span>
+                            <strong>RoBERTa-base (Local)</strong>
+                        </div>
+                        <div class="step-stat">
+                            Initial: <strong>{{ roberta_label }}</strong> ({{ (roberta_confidence * 100)|round(1) }}% conf)
+                        </div>
+                        <div class="step-decision">
+                            {% if engine_used == 'roberta' %}
+                                <span class="decision-tag pass">✓ High Confidence (≥ 80%)</span>
+                            {% else %}
+                                <span class="decision-tag escalate">⚠️ Mixed Signals (Escalated)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIPELINE ARROW -->
+                <div class="pipeline-connector">
+                    <span class="connector-line"></span>
+                    <span class="connector-arrow">→</span>
+                </div>
+
+                <!-- STEP 2: GROQ -->
+                <div class="pipeline-step {% if engine_used == 'llm' %}step-active-resolved{% else %}step-bypassed{% endif %}">
+                    <div class="step-badge">2</div>
+                    <div class="step-content">
+                        <div class="step-title">
+                            <span class="step-icon">🧠</span>
+                            <strong>Groq Llama 3.3 70B (Cloud)</strong>
+                        </div>
+                        <div class="step-stat">
+                            {% if engine_used == 'llm' %}
+                                Final Consensus: <strong>{{ label }}</strong>
+                            {% else %}
+                                Status: <strong>Standby (Bypassed)</strong>
+                            {% endif %}
+                        </div>
+                        <div class="step-decision">
+                            {% if engine_used == 'llm' %}
+                                <span class="decision-tag resolved">✓ Nuance Resolved</span>
+                            {% else %}
+                                <span class="decision-tag saved">⚡ Zero API Latency &amp; Cost</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- REVIEW CARD (TICKET) -->
+        <!-- ================================================== -->
+
+        <section class="review-card ticket frame-corners">
+
+            <div class="card-label">
+                YOUR REVIEW
+            </div>
+
+            <p class="review-content">
+                {{ review_text }}
+            </p>
+
+            <div class="review-meta">
+
+                <span>
+                    {{ word_count }} words
+                </span>
+
+                <span class="meta-dot">
+                    •
+                </span>
+
+                <span>
+                    Engine Mode: {{ engine }}
+                </span>
+
+                <span class="meta-dot">
+                    •
+                </span>
+
+                <span>
+                    {% if engine_used == 'llm' %}
+                        Resolved via Groq (Llama 3.3 70B) Fallback
+                    {% else %}
+                        RoBERTa Direct Path ({{ (roberta_confidence * 100)|round(1) }}%)
+                    {% endif %}
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- LLM ASPECT BREAKDOWN & RATIONALE (IF LLM USED) -->
+        <!-- ================================================== -->
+
+        {% if engine_used == 'llm' and (llm_rationale or aspects) %}
+
+        <section class="llm-reasoning-card frame-corners">
+
+            <div class="section-title">
+                <h2>
+                    🧠 Groq Deep Intelligence
+                </h2>
+                <div class="gold-rule"></div>
+            </div>
+
+            {% if llm_rationale %}
+            <div class="llm-rationale-box">
+                <span class="rationale-heading">Verdict Rationale:</span>
+                <p class="rationale-text">{{ llm_rationale }}</p>
+            </div>
+            {% endif %}
+
+            {% if aspects %}
+            <div class="aspects-section">
+                <span class="aspects-title">Aspect-Level Breakdown</span>
+                <div class="aspect-grid">
+                    {% for aspect_name, aspect_val in aspects.items() %}
+                    <div class="aspect-card">
+                        <div class="aspect-header">
+                            <span class="aspect-icon">
+                                {% if 'act' in aspect_name|lower %}🎭
+                                {% elif 'plot' in aspect_name|lower or 'stor' in aspect_name|lower %}📜
+                                {% elif 'direct' in aspect_name|lower or 'pac' in aspect_name|lower %}🎬
+                                {% elif 'music' in aspect_name|lower or 'sound' in aspect_name|lower or 'score' in aspect_name|lower %}🎵
+                                {% elif 'visual' in aspect_name|lower or 'cinema' in aspect_name|lower %}✨
+                                {% else %}🏷️{% endif %}
+                            </span>
+                            <span class="aspect-name">{{ aspect_name }}</span>
+                        </div>
+                        <p class="aspect-desc">{{ aspect_val }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </section>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- PROBABILITIES & CONFIDENCE SCORES -->
+        <!-- ================================================== -->
+
+        {% if probabilities %}
+
+        <section class="probability-section">
+
+            <!-- SECTION TITLE -->
+            <div class="section-title section-title-centered">
+                <h2>
+                    Prediction Confidence Breakdown
+                </h2>
+                <div class="gold-rule centered"></div>
+            </div>
+
+            <!-- PROBABILITY CARDS -->
+            <div class="probability-grid">
+
+                {% for cls, p in probabilities %}
+
+                    {% set colors_map = {
+                        'Positive': {
+                            'text': '#3F6B66',
+                            'bg_fill': '#3F6B66',
+                            'bg_card': 'rgba(63,107,102,0.10)',
+                            'symbol': '▲'
+                        },
+                        'Neutral': {
+                            'text': '#8D6516',
+                            'bg_fill': '#A2771B',
+                            'bg_card': 'rgba(162,119,27,0.12)',
+                            'symbol': '◆'
+                        },
+                        'Negative': {
+                            'text': '#7A2331',
+                            'bg_fill': '#7A2331',
+                            'bg_card': 'rgba(122,35,49,0.10)',
+                            'symbol': '▼'
+                        }
+                    } %}
+
+                    {% set c = colors_map.get(
+                        cls,
+                        {
+                            'text': '#5C5042',
+                            'bg_fill': '#8A7B6C',
+                            'bg_card': 'rgba(92,80,66,0.10)',
+                            'symbol': '●'
+                        }
+                    ) %}
+
+                    <!-- PROBABILITY CARD -->
+                    <div
+                        class="prob-card {% if cls == label %}prob-card-winner{% endif %}"
+                        style="background: {{ c.bg_card }};"
+                    >
+
+                        <div
+                            class="prob-class"
+                            style="color: {{ c.text }};"
+                        >
+                            <span class="class-symbol">{{ c.symbol }}</span>
+                            {{ cls }}
+                            {% if cls == label %}
+                                <span class="winner-tag">Primary</span>
+                            {% endif %}
+                        </div>
+
+                        <div
+                            class="prob-percent"
+                            style="color: {{ c.text }};"
+                        >
+                            {{ (p * 100) | round(1) }}%
+                        </div>
+
+                        <div class="prob-bar">
+                            <div
+                                class="prob-bar-fill"
+                                style="
+                                    width: {{ p * 100 }}%;
+                                    background: {{ c.bg_fill }};
+                                "
+                            ></div>
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+            <!-- CONFIDENCE CALLOUT -->
+            <div class="confidence-callout">
+                <div class="confidence-title">
+                    Overall Confidence Strength
+                </div>
+
+                <div class="confidence-value">
+                    {{ confidence_strength }}
+                </div>
+
+                <div class="confidence-hint">
+                    Calculated from the highest class probability distribution across calibrated model logits.
+                </div>
+            </div>
+
+        </section>
+
+        {% else %}
+
+        <section class="callout-info">
+            <strong>Prediction:</strong> {{ label }}
+        </section>
+
+        {% endif %}
+
+
+        <!-- ================================================== -->
+        <!-- BOOKING CTA -->
+        <!-- ================================================== -->
+
+        <section class="booking-cta">
+
+            <p class="booking-cta-copy">
+                {% if label == "Positive" %}
+                    Loved it that much? Grab tickets for your next watch.
+                {% elif label == "Negative" %}
+                    Didn't land for you? Pick a better watch for next time.
+                {% else %}
+                    On the fence? See what else is playing right now.
+                {% endif %}
+            </p>
+
+            <a
+                href="https://www.district.in/movies/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-gold"
+            >
+                🎬 Book Tickets on District
+            </a>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- DOWNLOAD REPORT -->
+        <!-- ================================================== -->
+
+        <section class="report-section frame-corners">
+
+            <div class="report-copy">
+
+                <div class="section-title">
+                    <h2>
+                        Download Analysis Report
+                    </h2>
+                    <div class="gold-rule"></div>
+                </div>
+
+                <p class="report-description">
+                    Download a complete report containing your review, sentiment prediction, confidence
+                    scores, review statistics, and model routing metadata.
+                </p>
+
+                <!-- DOWNLOAD FORM -->
+                <form
+                    action="{{ url_for('download_report') }}"
+                    method="POST"
+                    class="download-form"
+                >
+
+                    <input type="hidden" name="review_text" value="{{ review_text }}">
+                    <input type="hidden" name="label" value="{{ label }}">
+                    <input type="hidden" name="engine" value="{{ engine }}">
+                    <input type="hidden" name="word_count" value="{{ word_count }}">
+                    <input type="hidden" name="confidence_strength" value="{{ confidence_strength }}">
+
+                    {% if probabilities %}
+                        {% for cls, p in probabilities %}
+                            {% if cls == "Positive" %}
+                                <input type="hidden" name="positive" value="{{ p }}">
+                            {% elif cls == "Neutral" %}
+                                <input type="hidden" name="neutral" value="{{ p }}">
+                            {% elif cls == "Negative" %}
+                                <input type="hidden" name="negative" value="{{ p }}">
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-gold btn-download"
+                    >
+                        Download Report
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="report-visual">
+                <img
+                    src="{{ url_for('static', filename='images/ticket-admit-one.jpg') }}"
+                    alt="An illustrated admit-one movie ticket"
+                >
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- CLOSING CREDITS BAND -->
+        <!-- ================================================== -->
+
+        <section class="credits-band">
+
+            <img
+                class="bg-img"
+                src="{{ url_for('static', filename='images/credits-cinema.jpg') }}"
+                alt="A black and white collage of film posters behind a director, captioned Absolute Cinema"
+            >
+
+            <div class="overlay"></div>
+
+            <div class="content">
+                <span class="eyebrow">That's a wrap</span>
+                <h2>Every review deserves its own close-up.</h2>
+            </div>
+
+        </section>
+
+
+        <!-- ================================================== -->
+        <!-- ACTIONS -->
+        <!-- ================================================== -->
+
+        <div class="actions-row">
+            <a
+                href="{{ url_for('index') }}"
+                class="btn btn-maroon btn-wide"
+            >
+                ← Analyze Another Review
+            </a>
+        </div>
+
+    </main>
+
+
+    <!-- ====================================================== -->
+    <!-- FOOTER -->
+    <!-- ====================================================== -->
+
+    <footer class="result-footer">
+        <p>
+            MARQUEE • Fine-Tuned RoBERTa-base &amp; Groq Llama 3.3 70B Hybrid System
+        </p>
+    </footer>
+
+</div>
+
+</body>
+</html>

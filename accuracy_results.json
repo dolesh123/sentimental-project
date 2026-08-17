@@ -1,0 +1,26 @@
+{
+    "model": "roberta-base fine-tuned for 3-class sentiment",
+    "test_samples": 6530,
+    "accuracy": 0.7840735068912711,
+    "precision_weighted": 0.7858902906680726,
+    "recall_weighted": 0.7840735068912711,
+    "f1_weighted": 0.7844881746591993,
+    "classification_report": "              precision    recall  f1-score   support\n\n    Negative     0.8214    0.7683    0.7939      2352\n     Neutral     0.7025    0.7397    0.7206      1829\n    Positive     0.8153    0.8344    0.8247      2349\n\n    accuracy                         0.7841      6530\n   macro avg     0.7797    0.7808    0.7798      6530\nweighted avg     0.7859    0.7841    0.7845      6530\n",
+    "confusion_matrix": [
+        [
+            1807,
+            312,
+            233
+        ],
+        [
+            265,
+            1353,
+            211
+        ],
+        [
+            128,
+            261,
+            1960
+        ]
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "roberta_baseline": {
+        "total_test_samples": 6530,
+        "accuracy": 0.7840735068912711,
+        "macro_f1": 0.7797727156504575,
+        "neutral_f1": 0.7206391478029295,
+        "avg_latency_ms": 97.00107501440355,
+        "escalation_rate_pct": 28.713629402756506
+    },
+    "ambiguous_subset_benchmark": {
+        "samples_evaluated": 15,
+        "roberta_accuracy": 0.6666666666666666,
+        "gemini_accuracy": 0.4,
+        "gain_on_ambiguous_pct": -26.66666666666666,
+        "gemini_avg_latency_ms": 2195.3943570454917
+    },
+    "hybrid_measured": {
+        "accuracy": 0.8835117773019272,
+        "macro_f1": 0.8798470694347463,
+        "neutral_f1": 0.8421052631578947,
+        "avg_latency_ms": 699.5259454291494,
+        "llm_hit_rate_pct": 28.713629402756506
+    }
+}
