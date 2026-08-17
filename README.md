@@ -3,8 +3,9 @@ title: Marquee Movie Review Sentiment Analysis
 emoji: 🎬
 colorFrom: red
 colorTo: indigo
-sdk: docker
-app_port: 7860
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
 pinned: false
 license: mit
 ---
@@ -17,7 +18,9 @@ A modern cinema-themed hybrid sentiment analysis web application powered by a fi
 - **Local RoBERTa Transformer**: Ultra-fast (~45ms) 3-class sentiment prediction (Positive / Neutral / Negative).
 - **Hybrid Escalation Routing**: High confidence fast-path, escalating ambiguous or mixed reviews to LLMs for deeper insight.
 - **Aspect Breakdown**: Performance ratings across Acting, Direction/Pacing, and Plot.
-- **Cinematic UI**: Glassmorphism styling, real-time live telemetry, confidence gauges, and downloadable reports.
+- **Dual UI Support**:
+  - **Gradio Interface** ([app.py](app.py)) — Native Hugging Face Spaces UI.
+  - **Flask SPA Dashboard** ([app_flask.py](app_flask.py)) — Standalone cinema-themed web app.
 
 ## 🚀 Running Locally
 
@@ -33,13 +36,9 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Start the Flask app
+# Start the Flask Web App
 python app_flask.py
-```
 
-## 🐳 Docker Deployment
-
-```bash
-docker build -t movie-sentiment-app .
-docker run -p 7860:7860 movie-sentiment-app
+# Or start the Gradio UI
+python app.py
 ```
